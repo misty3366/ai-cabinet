@@ -4632,14 +4632,10 @@ if(styleListEl) styleListEl.addEventListener('click',function(e){
 /* ===== ③ 功能件设置 ===== */
 var QCFG={part:'',tab:'basic',spec:0,style:0};
 var PART_META={
-  '顶板':{d:'柜子最上面的一块板，负责封顶和承托，做到顶更整洁。',specs:['18mm 厚','25mm 厚'],styles:['同色封边','免拉手隐形边'],fig:''},
-  '底板':{d:'柜子底部的承重板，决定柜体稳不稳，也影响日常打扫。',specs:['18mm 厚','25mm 厚'],styles:['同色封边','加装踢脚线'],fig:''},
   '中立板':{d:'立在两列中间的分隔板，把柜子分成左右两边，同时起支撑作用。',specs:['18mm 厚','25mm 厚'],styles:['通高中立板','半高中立板'],fig:''},
   '层板':{d:'把上下空间分隔开，叠好的衣物、收纳盒都能放。',specs:['1 层','2 层','3 层'],styles:['固定层板','活动层板','加深层板'],fig:''},
-  '转角层板':{d:'用在转角位置的层板，让 L 型柜的拐角也能放东西。',specs:['1 块','2 块'],styles:['直角转角','圆弧转角'],fig:''},
-  '背板':{d:'柜体背面的板材，防潮、防尘，也让柜子更牢固。',specs:['9mm 厚','18mm 厚'],styles:['整板到顶','拼接背板'],fig:''},
   '踢脚板':{d:'柜子最下面的收口板，遮住底部缝隙，也更耐脏。',specs:['80mm 高','100mm 高'],styles:['同色踢脚','内嵌踢脚','金属踢脚'],fig:''},
-  '封板':{d:'柜子和墙面之间的收口板，把缝隙填平，看起来更整齐。',specs:['50mm 宽','80mm 宽'],styles:['同色封板','见光封板'],fig:''},
+  '收口板':{d:'柜子和墙面之间的收口板，把缝隙填平，看起来更整齐。',specs:['50mm 宽','80mm 宽'],styles:['同色收口板','见光收口板'],fig:''},
   '抽屉':{d:'收纳贴身衣物和小件物品，装在腰部高度最顺手。',specs:['1 个','2 个','3 个'],styles:['平抽面','斜边抽面','带拉手抽面','免拉手内抽'],fig:'assets/cabinet-drawer-config.png'},
   '挂衣通':{d:'挂衣服的横杆，长衣区和短衣区都会用到。',specs:['1 根','2 根'],styles:['铝合金挂衣通','静音挂衣通','带灯挂衣通'],fig:''},
   '门板':{d:'柜门决定整体外观，也影响开门的顺手程度。',specs:['平开门','推拉门'],styles:['平板门','造型门','铝框门','玻璃门'],fig:''},
@@ -4735,20 +4731,15 @@ if(qcBox) qcBox.addEventListener('click',function(e){
     return;
   }
 });
-/* 快速添加：每一项都有对应的设置页 */
-var PART_GROUPS=[
-  {t:'板件',items:['顶板','底板','中立板','背板','层板','转角层板','踢脚板','封板']},
-  {t:'功能件',items:['抽屉','挂衣通','门板','拉手']}
-];
-var PART_ICON={'顶板':'top','底板':'bottom','中立板':'mid','背板':'back','层板':'shelf',
-  '转角层板':'shelf','踢脚板':'bottom','封板':'side','抽屉':'drawer','挂衣通':'shelf','门板':'door','拉手':'door'};
+/* 快速添加：功能件（不再区分板件/功能件） */
+var PART_ITEMS=['层板','中立板','踢脚板','收口板','抽屉','挂衣通','门板','拉手'];
+var PART_ICON={'层板':'shelf','中立板':'mid','踢脚板':'bottom','收口板':'side',
+  '抽屉':'drawer','挂衣通':'shelf','门板':'door','拉手':'door'};
 function renderPartGroups(){
   var host=$('#partGroups'); if(!host) return;
-  host.innerHTML=PART_GROUPS.map(function(g){
-    return '<p class="sec-label">'+g.t+'</p><div class="layout-quick">'+g.items.map(function(f){
-      return '<button data-f="'+f+'"><i class="'+(PART_ICON[f]||'top')+'"></i><span>'+f+'</span></button>';
-    }).join('')+'</div>';
-  }).join('');
+  host.innerHTML='<div class="layout-quick">'+PART_ITEMS.map(function(f){
+    return '<button data-f="'+f+'"><i class="'+(PART_ICON[f]||'top')+'"></i><span>'+f+'</span></button>';
+  }).join('')+'</div>';
 }
 var partGroupsEl=$('#partGroups');
 if(partGroupsEl) partGroupsEl.addEventListener('click',function(e){
