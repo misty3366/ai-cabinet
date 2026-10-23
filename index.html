@@ -3124,6 +3124,14 @@ function renderDwChips(){
     return '<button draggable="true" data-fn="'+i+'">'+k+'</button>';
   }).join('');
 }
+/* 左侧柜体模板：把当前选中列的模板高亮出来 */
+function syncTplActive(){
+  var host=$('#dTpl'); if(!host) return;
+  var u=DRAW.sel?dwUnit(DRAW.sel):null;
+  var cur=u?u.t:'';
+  var btns=$$('#dTpl button');
+  btns.forEach(function(b,i){ b.classList.toggle('on', DW_TPL[i]===cur) });
+}
 /* 左侧按钮可以拖到画布里 */
 document.addEventListener('dragstart',function(e){
   var b=e.target.closest('#dTpl button,#dFunc button'); if(!b) return;
@@ -3202,6 +3210,7 @@ function renderDraw(){
   if(iw) iw.value=DRAW.w; if(ih) ih.value=DRAW.h; if(idd) idd.value=DRAW.d;
   var sel=$('#dType'); if(sel) sel.value=DRAW.type;
   renderDwBar();
+  syncTplActive();
   if(current==='draw') updateGuide('draw');
 }
 function renderDwBar(){
@@ -3498,6 +3507,14 @@ $('#drawStage').addEventListener('drop',function(e){
 $('#dTpl').addEventListener('click',function(e){
   var b=e.target.closest('button'); if(!b) return;
   var t=DW_TPL[+b.getAttribute('data-tpl')];
+  /* 已选中某一列 → 替换这一列的柜体模板；没选中 → 才新增一列 */
+  var cur=DRAW.sel?dwUnit(DRAW.sel):null;
+  if(cur){
+    cur.t=t;
+    renderDraw();
+    toast('本列已换成「'+t+'」');
+    return;
+  }
   DRAW.units.push({id:DRAW.uid++,t:t,w:DW_TPL_W[t]||800,zones:[]});
   dwReflow();
   DRAW.sel=DRAW.units[DRAW.units.length-1].id; DRAW.selZone=null;
