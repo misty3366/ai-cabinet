@@ -2927,15 +2927,15 @@ submitPhoto.addEventListener('click',function(){
 var DRAW={type:'衣柜',w:2400,h:2400,d:600,units:[],sel:null,selZone:null,selPt:null,auto:false,fromEditor:false,uid:1,_s:1};
 var DW_TPL=['一字柜','转角柜','侧边柜','梳妆台','书桌','床头柜'];
 var DW_TPL_W={'一字柜':800,'转角柜':900,'侧边柜':500,'梳妆台':900,'书桌':1200,'床头柜':450};
-var DW_FUNC=['被褥区','长衣区','短衣区','裙裤区','叠放区','抽屉','饰品区','踢脚区'];
+var DW_FUNC=['被褥区','长衣区','短衣区','裙裤区','叠放区','内抽屉','外抽屉','踢脚区'];
 var DW_FCOLOR={
   '被褥区':['#fbd5d9','#e2a9b1'],'长衣区':['#edf6e9','#c6e0be'],'短衣区':['#edf6e9','#c6e0be'],
   '挂衣区':['#edf6e9','#c6e0be'],'裙裤区':['#dff0da','#b4d8ac'],'叠放区':['#fdebee','#f3c6cc'],
-  '抽屉':['#efe9fb','#cfc1ea'],'饰品区':['#e6e4fa','#c3c0ea'],
+  '内抽屉':['#efe9fb','#cfc1ea'],'外抽屉':['#efe9fb','#cfc1ea'],
   '踢脚区':['#f2f2f0','#d8d8d4'],'开放格':['#f5f6f6','#dde0e1']
 };
 /* 各类功能区的最小高度（智能布局用） */
-var DW_MIN={'被褥区':360,'长衣区':1200,'短衣区':820,'裙裤区':650,'叠放区':300,'抽屉':180,'饰品区':250,'踢脚区':100,'开放格':300};
+var DW_MIN={'被褥区':360,'长衣区':1200,'短衣区':820,'裙裤区':650,'叠放区':300,'内抽屉':180,'外抽屉':180,'踢脚区':100,'开放格':300};
 function dwClamp(v,a,b){ return Math.max(a,Math.min(b,v)) }
 function dwRound(v,st){ st=st||10; return Math.round(v/st)*st }
 function dwUnit(id){ for(var i=0;i<DRAW.units.length;i++){ if(DRAW.units[i].id===id) return DRAW.units[i] } return null }
@@ -3048,7 +3048,7 @@ function dwSeedPoints(){
     u.points=[
       {id:DRAW.uid++,k:'被褥区',y:0},
       {id:DRAW.uid++,k:mains[i%mains.length],y:Math.round(DRAW.h*.3)},
-      {id:DRAW.uid++,k:(i%2?'抽屉':'叠放区'),y:Math.round(DRAW.h*.82)}
+      {id:DRAW.uid++,k:['内抽屉','外抽屉'][i%2],y:Math.round(DRAW.h*.82)}
     ];
   });
 }
@@ -4008,6 +4008,7 @@ var ZONE_STYLE={
   '行李箱区':{f:'#fce0c9',s:'#e3b992'},
   '内抽屉':{f:'#e7d8f8',s:'#c1ace0'},
   '抽屉':{f:'#e7d8f8',s:'#c1ace0'},
+  '外抽屉':{f:'#e7d8f8',s:'#c1ace0'},
   '裙裤区':{f:'#dff0da',s:'#b4d8ac'},
   '饰品区':{f:'#e6e4fa',s:'#c3c0ea'},
   '踢脚区':{f:'#f2f2f0',s:'#d6d6d2'},
@@ -5119,13 +5120,13 @@ var S3={mode:'',col:0,zi:null,sj:null,s:1,doors:true,doorOpen:false};
 function colWmm(c){ return Math.round(S.cabinet.w*S.colW[c]/colWSum()/10)*10; }
 function shelfDefault(k){
   if(k==='叠放区') return [.25,.5,.75];
-  if(k==='内抽屉'||k==='抽屉') return [];
+  if(k==='内抽屉'||k==='外抽屉'||k==='抽屉') return [];
   if(k==='被褥区'||k==='开放格') return [];
   if(k==='长衣区'||k==='短衣区'||k==='挂衣区') return [.64];
   return [.34,.67];
 }
 function isRodZ(k){ return k==='长衣区'||k==='短衣区'||k==='挂衣区'; }
-function isDrawerZ(k){ return k==='内抽屉'||k==='抽屉'; }
+function isDrawerZ(k){ return k==='内抽屉'||k==='外抽屉'||k==='抽屉'; }
 function zoneShelves(i){
   var z=S.zoneCfg[i];
   if(!z.sh) z.sh=shelfDefault(z.name).slice();
@@ -5357,7 +5358,7 @@ function planSvg(){
     g+='<rect x="'+x0+'" y="'+y0+'" width="'+(x1-x0)+'" height="'+(y1-y0)+'" fill="none" stroke="#9aa0a8" stroke-width=".9"/>';
     g+='<line x1="'+x0+'" y1="'+y0+'" x2="'+x1+'" y2="'+y1+'" stroke="#d3d7db" stroke-dasharray="5 5"/>';
     g+='<line x1="'+x1+'" y1="'+y0+'" x2="'+x0+'" y2="'+y1+'" stroke="#d3d7db" stroke-dasharray="5 5"/>';
-    if(S.zoneCfg[r.i].name==='内抽屉'||S.zoneCfg[r.i].name==='抽屉'){
+    if(S.zoneCfg[r.i].name==='内抽屉'||S.zoneCfg[r.i].name==='外抽屉'||S.zoneCfg[r.i].name==='抽屉'){
       g+='<circle cx="'+((x0+x1)/2)+'" cy="'+((y0+y1)/2)+'" r="2.6" fill="#3d444e"/>';
     }
   });
