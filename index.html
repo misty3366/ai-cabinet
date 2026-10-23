@@ -2262,7 +2262,7 @@ body.on-produce .agent{bottom:96px}
           <div class="lt-pane" data-lt="edit">
             <div class="sub-tabs lm-tabs" id="layoutMods">
               <button class="on" data-lm="style">单元柜样式</button>
-              <button data-lm="part">功能件</button>
+              <button data-lm="part">柜体部件</button>
             </div>
             <div class="lm-pane on" data-lm="style">
               <div class="unit-list style-list" id="styleList"></div>
@@ -4490,7 +4490,7 @@ function switchLayoutMod(m){
   $$('#layoutMods button').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-lm')===m) });
   $$('.lm-pane').forEach(function(p){ p.classList.toggle('on', p.getAttribute('data-lm')===m) });
 }
-/* 2D：只保留「推荐布局」；3D：保留「推荐布局 / 编辑布局」，编辑布局里再分单元柜样式 + 功能件 */
+/* 2D：只保留「推荐布局」；3D：保留「推荐布局 / 编辑布局」，编辑布局里再分单元柜样式 + 柜体部件 */
 function syncLayoutMods(is3d){
   var editBtn=$('#layoutTabs button[data-lt="edit"]');
   if(editBtn) editBtn.hidden=!is3d;
@@ -4629,7 +4629,7 @@ if(styleListEl) styleListEl.addEventListener('click',function(e){
   toast('已套用「'+STYLE_UNITS[S.unitStyle].k+'」');
 });
 
-/* ===== ③ 功能件设置 ===== */
+/* ===== ③ 柜体部件设置 ===== */
 var QCFG={part:'',tab:'basic',spec:0,style:0};
 var PART_META={
   '中立板':{d:'立在两列中间的分隔板，把柜子分成左右两边，同时起支撑作用。',specs:['18mm 厚','25mm 厚'],styles:['通高中立板','半高中立板'],fig:''},
@@ -4638,8 +4638,7 @@ var PART_META={
   '收口板':{d:'柜子和墙面之间的收口板，把缝隙填平，看起来更整齐。',specs:['50mm 宽','80mm 宽'],styles:['同色收口板','见光收口板'],fig:''},
   '抽屉':{d:'收纳贴身衣物和小件物品，装在腰部高度最顺手。',specs:['1 个','2 个','3 个'],styles:['平抽面','斜边抽面','带拉手抽面','免拉手内抽'],fig:'assets/cabinet-drawer-config.png'},
   '挂衣通':{d:'挂衣服的横杆，长衣区和短衣区都会用到。',specs:['1 根','2 根'],styles:['铝合金挂衣通','静音挂衣通','带灯挂衣通'],fig:''},
-  '门板':{d:'柜门决定整体外观，也影响开门的顺手程度。',specs:['平开门','推拉门'],styles:['平板门','造型门','铝框门','玻璃门'],fig:''},
-  '拉手':{d:'开门用的拉手，款式影响整体好不好看、好不好开。',specs:['单个装','整套装'],styles:['无拉手','细边拉手','长条拉手','圆形拉手','隐藏拉手'],fig:''}
+  '门板':{d:'柜门决定整体外观，也影响开门的顺手程度。',specs:['平开门','推拉门'],styles:['平板门','造型门','铝框门','玻璃门'],fig:''}
 };
 function matButtons(sel){
   var list=(typeof MATS!=='undefined'&&MATS.wood)||[];
@@ -4731,10 +4730,10 @@ if(qcBox) qcBox.addEventListener('click',function(e){
     return;
   }
 });
-/* 快速添加：功能件（不再区分板件/功能件） */
-var PART_ITEMS=['层板','中立板','踢脚板','收口板','抽屉','挂衣通','门板','拉手'];
+/* 快速添加：柜体部件（不再区分板件/功能件） */
+var PART_ITEMS=['层板','中立板','踢脚板','收口板','抽屉','挂衣通','门板'];
 var PART_ICON={'层板':'shelf','中立板':'mid','踢脚板':'bottom','收口板':'side',
-  '抽屉':'drawer','挂衣通':'shelf','门板':'door','拉手':'door'};
+  '抽屉':'drawer','挂衣通':'shelf','门板':'door'};
 function renderPartGroups(){
   var host=$('#partGroups'); if(!host) return;
   host.innerHTML='<div class="layout-quick">'+PART_ITEMS.map(function(f){
