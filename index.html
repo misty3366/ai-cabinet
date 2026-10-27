@@ -410,6 +410,14 @@ body.on-produce .agent{bottom:96px}
 .cv-tabs button{padding:8px 16px;border-radius:var(--pill);font-size:13px;color:var(--ink2);transition:.2s}
 .cv-tabs button:hover{background:#f2f2ef;color:var(--ink)}
 .cv-tabs button.on{background:var(--ink);color:#fff}
+/* 3D 选择模式切换 */
+.cv-modes{display:flex;align-items:center;gap:2px;background:#fff;border:1px solid var(--line);
+  border-radius:var(--pill);padding:3px;box-shadow:0 6px 18px rgba(31,36,45,.06)}
+.cv-modes[hidden]{display:none}
+.cv-modes button{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;transition:.18s}
+.cv-modes button:hover{background:#f3f4f6}
+.cv-modes button.on{background:#f3f4f6;box-shadow:inset 0 0 0 1.5px #d9dde3}
+.cv-modes svg{width:18px;height:18px;display:block}
 .preview-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:82px 34px 54px;
   background:linear-gradient(160deg,#f6f7f5,#eef0ed)}
 .cloud-wrap{position:absolute;inset:0;display:none;background:#f4f5f3}
@@ -1560,7 +1568,7 @@ body.on-produce .agent{bottom:96px}
 .zn-rs[data-dir="e"],.zn-rs[data-dir="w"]{cursor:ew-resize}
 .zn-rs[data-dir="nw"],.zn-rs[data-dir="se"]{cursor:nwse-resize}
 .zn-rs[data-dir="ne"],.zn-rs[data-dir="sw"]{cursor:nesw-resize}
-.zgrip{stroke:rgba(47,131,255,0);stroke-width:16;fill:none;cursor:col-resize}
+.zgrip{stroke:rgba(47,131,255,0);stroke-width:16;fill:none;cursor:col-resize;pointer-events:none}
 .zgrip.h{cursor:row-resize}
 .zgrip:hover{stroke:rgba(47,131,255,.28)}
 .zgrip.on{stroke:rgba(47,131,255,.45)}
@@ -2356,6 +2364,17 @@ body.on-produce .agent{bottom:96px}
           <div class="cv-tabs" id="cvTabs">
             <button class="on" data-tab="2d">2D</button>
             <button data-tab="3d">3D</button>
+          </div>
+          <div class="cv-modes" id="cvModes" hidden>
+            <button data-sm="space" class="on" data-tip="选择空间 (N)" aria-label="选择空间">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#fff" stroke="#e2e5ea"/><path d="M12 3A9 9 0 0 1 21 12H12Z" fill="#FF6B6B"/><path d="M21 12A9 9 0 0 1 12 21V12Z" fill="#FFC93C"/><path d="M12 21A9 9 0 0 1 3 12H12Z" fill="#43B02A"/><path d="M3 12A9 9 0 0 1 12 3V12Z" fill="#4A90E2"/></svg>
+            </button>
+            <button data-sm="part" data-tip="选择板件 (B)" aria-label="选择板件">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="#fff" stroke="#17181a" stroke-width="1.6"/><path d="M12 3.4a8.6 8.6 0 0 0 0 17.2Z" fill="#17181a"/></svg>
+            </button>
+            <button data-sm="cab" data-tip="选择柜体 (M)" aria-label="选择柜体">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6" fill="#fff" stroke="#c9a06a" stroke-width="1.6"/><path d="M12 3.4a8.6 8.6 0 0 1 0 17.2Z" fill="#F0C387"/></svg>
+            </button>
           </div>
         </div>
       </div>
@@ -4030,6 +4049,13 @@ function ensureZones(){
     S.zoneCfg=BASE_ZONES.map(function(z){ return {col:z.col,name:z.n,h:z.h} });
   }
   if(!S.colW || S.colW.length!==BASE_COLS.length) S.colW=BASE_COLS.slice();
+  /* 每一列都必须有分区，避免 2D 画布出现空白列；空列按常规分区补齐 */
+  var used={};
+  S.zoneCfg.forEach(function(z){ used[z.col]=1 });
+  var DEFAULT_FILL=[{n:'被褥区',h:4},{n:'短衣区',h:9},{n:'叠放区',h:3}];
+  for(var c=0;c<S.colW.length;c++){
+    if(!used[c]) DEFAULT_FILL.forEach(function(d){ S.zoneCfg.push({col:c,name:d.n,h:d.h}) });
+  }
   if(S.selZone!=null && !S.zoneCfg[S.selZone]) S.selZone=null;
   return S.zoneCfg;
 }
@@ -4386,9 +4412,21 @@ $$('#cvTabs button').forEach(function(b){
     var is3d=(t==='3d');
     var diy=$('#edDiyBar'); if(diy) diy.hidden=true;
     $$('.ed-actions [data-3d]').forEach(function(x){ x.hidden=!is3d });
+    var modes=$('#cvModes'); if(modes) modes.hidden=!is3d;
     if(is3d) render3d();
     syncLayoutMods(is3d);
     var hint=$('#stageHint'); if(hint) hint.style.display=is3d?'none':'';
+  });
+});
+/* 3D 选择模式：选择空间 / 选择板件 / 选择柜体 */
+$$('#cvModes button').forEach(function(b){
+  b.addEventListener('click',function(){
+    $$('#cvModes button').forEach(function(x){ x.classList.remove('on') });
+    b.classList.add('on');
+    S3.pick=b.getAttribute('data-sm');
+    S3.mode=''; S3.zi=null; S3.sj=null;
+    render3d();
+    toast(S3.pick==='space'?'当前：选择空间':(S3.pick==='part'?'当前：选择板件':'当前：选择柜体'));
   });
 });
 $$('.mod').forEach(function(m){
@@ -5116,7 +5154,7 @@ $$('.case').forEach(function(c){ c.addEventListener('click',function(){ toast('�
   applyHash();
 })();
 /* ===== 3D 视图：本地渲染，支持选中单元格 / 层板 / 单元柜 ===== */
-var S3={mode:'',col:0,zi:null,sj:null,s:1,doors:true,doorOpen:false};
+var S3={mode:'',col:0,zi:null,sj:null,s:1,doors:true,doorOpen:false,pick:'space'};
 function colWmm(c){ return Math.round(S.cabinet.w*S.colW[c]/colWSum()/10)*10; }
 function shelfDefault(k){
   if(k==='叠放区') return [.25,.5,.75];
@@ -5253,8 +5291,17 @@ function dim3Inputs(rects,cols){
     var ci=e.target.closest('.p3-col');
     var sh=e.target.closest('.p3-shelf');
     var cell=e.target.closest('.p3-cell');
-    if(ci){ S3.mode='col'; S3.col=+ci.getAttribute('data-ci'); S3.zi=null; S3.sj=null; render3d(); return }
-    if(sh){ S3.mode='shelf'; S3.zi=+sh.getAttribute('data-zi'); S3.sj=+sh.getAttribute('data-sj'); S3.col=S.zoneCfg[S3.zi].col; render3d(); return }
+    var pick=S3.pick||'space';
+    if(pick==='cab'){
+      if(ci){ S3.mode='col'; S3.col=+ci.getAttribute('data-ci'); S3.zi=null; S3.sj=null; render3d(); return }
+      if(cell){ S3.mode='col'; S3.col=S.zoneCfg[+cell.getAttribute('data-zi')].col; S3.zi=null; S3.sj=null; render3d(); return }
+      S3.mode=''; S3.zi=null; S3.sj=null; render3d(); return;
+    }
+    if(pick==='part'){
+      if(sh){ S3.mode='shelf'; S3.zi=+sh.getAttribute('data-zi'); S3.sj=+sh.getAttribute('data-sj'); S3.col=S.zoneCfg[S3.zi].col; render3d(); return }
+      S3.mode=''; S3.zi=null; S3.sj=null; render3d(); return;
+    }
+    /* space：只选功能区 */
     if(cell){ S3.zi=+cell.getAttribute('data-zi'); S3.mode='zone'; S3.sj=null; S3.col=S.zoneCfg[S3.zi].col; render3d(); return }
     S3.mode=''; S3.zi=null; S3.sj=null; render3d();
   });
